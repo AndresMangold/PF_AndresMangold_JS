@@ -98,43 +98,9 @@ function mostrarCarrito() {
 
 
 
-function quitarArticuloCarrito() {
-    function eliminarProducto(index) {
-        const devolverArticulo = carroDeCompras.splice(index, 1)[0];
-        productosDisponibles[devolverArticulo.numeroPieza - 1].stock++;
 
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Producto eliminado con éxito',
-            showConfirmButton: false,
-            timer: 1500
-        });
-
-        guardarCarritoEnLocalStorage();
-    }
-
-    function terminarCompra() {
-        Swal.fire({
-            title: '¿Desea terminar la compra?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí',
-            cancelButtonText: 'No'
-        }).then((result) => {
-            if (result.value) {
-                Swal.fire({
-                    position: 'center',
-                    icon: 'success',
-                    title: '¡Muchas Gracias por su compra!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        });
-    }
-
-    function mostrarEliminarProducto() {
+function mostrarEliminarProducto() {
+    return new Promise((resolve, reject) => {
         const cantidadInput = document.createElement('input');
         cantidadInput.type = 'number';
         cantidadInput.placeholder = 'Ingrese la cantidad';
@@ -167,39 +133,61 @@ function quitarArticuloCarrito() {
                 });
             }
         }).then((result) => {
-            if (!result.isDismissed) {
-                const cantidad = parseInt(result.value);
-                const index = cantidad - 1;
-                eliminarProducto(index);
+            if (result.isConfirmed) {
+                resolve(parseInt(result.value));
+            } else {
+                reject(new Error('Operación cancelada'));
             }
         });
-    }
-
-    while (true) {
-        productosEnCarrito(carroDeCompras);
-
-        const articulo = prompt("¿Cuántos productos desea eliminar?:\n" + productosEnCarrito(carroDeCompras) + "\n\nIngrese (00) para salir");
-        if (articulo.toLowerCase() === "00") {
-            break;
-        }
-
-        const index = parseInt(articulo) - 1;
-
-        if (!isNaN(index) && index >= 0 && index < carroDeCompras.length) {
-            eliminarProducto(index);
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Por favor, ingresa una opción válida',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-    }
-
-    terminarCompra();
+    });
 }
 
+
+
+function quitarArticuloCarrito() {
+    function eliminarProducto(index) {
+        const devolverArticulo = carroDeCompras.splice(index, 1)[0];
+        productosDisponibles[devolverArticulo.numeroPieza - 1].stock++;
+
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Producto eliminado con éxito',
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+        guardarCarritoEnLocalStorage();
+        mostrarCarrito();
+    }
+
+    let salir = false;
+    while (!salir) {
+        productosEnCarrito(carroDeCompras);
+
+        const articulo = prompt("¿Cuántos productos desea eliminar?:\n" + productosEnCarrito(carroDeCompras));
+        if (articulo === null) {
+            salir = true;
+        } else {
+            const index = parseInt(articulo) - 1;
+
+            if (!isNaN(index) && index >= 0 && index < carroDeCompras.length) {
+                eliminarProducto(index);
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Por favor, ingresa una opción válida',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    }
+
+    if (!salir) {  
+        mostrarCarrito();
+    }
+}
 
 
 
@@ -277,7 +265,7 @@ function añadirAlCarrito(productoIndex) {
             style: {
                 background: "linear-gradient(to right, #30c622, #2e8a34",
             },
-            onClick: function () { } // Callback after click
+            onClick: function () { } 
         }).showToast();
 
         actualizarInformacionEnDOM();
