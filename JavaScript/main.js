@@ -96,9 +96,6 @@ function mostrarCarrito() {
 }
 
 
-
-
-
 function mostrarEliminarProducto() {
     return new Promise((resolve, reject) => {
         const cantidadInput = document.createElement('input');
@@ -161,35 +158,151 @@ function quitarArticuloCarrito() {
         mostrarCarrito();
     }
 
-    let salir = false;
-    while (!salir) {
-        productosEnCarrito(carroDeCompras);
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.tabIndex = '-1';
+    modal.role = 'dialog';
+    modal.id = 'eliminarProductoModal';
 
-        const articulo = prompt("¿Cuántos productos desea eliminar?:\n" + productosEnCarrito(carroDeCompras));
-        if (articulo === null) {
-            salir = true;
-        } else {
-            const index = parseInt(articulo) - 1;
+    const modalDialog = document.createElement('div');
+    modalDialog.className = 'modal-dialog';
+    modalDialog.role = 'document';
 
-            if (!isNaN(index) && index >= 0 && index < carroDeCompras.length) {
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalHeader = document.createElement('div');
+    modalHeader.className = 'modal-header';
+
+    const modalTitle = document.createElement('h5');
+    modalTitle.className = 'modal-title';
+    modalTitle.textContent = 'Eliminar Producto';
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'close';
+    closeButton.setAttribute('data-dismiss', 'modal');
+    closeButton.setAttribute('aria-label', 'Close');
+
+    const closeIcon = document.createElement('span');
+    closeIcon.setAttribute('aria-hidden', 'true');
+    closeIcon.innerHTML = '&times;';
+
+    closeButton.appendChild(closeIcon);
+
+    modalHeader.appendChild(modalTitle);
+    modalHeader.appendChild(closeButton);
+
+    const modalBody = document.createElement('div');
+    modalBody.className = 'modal-body';
+
+    const selectLabel = document.createElement('p');
+    selectLabel.textContent = 'Seleccione el producto que desea eliminar:';
+
+    const table = document.createElement('table');
+    table.className = 'table';
+
+    const thead = document.createElement('thead');
+    const theadRow = document.createElement('tr');
+
+    const th1 = document.createElement('th');
+    th1.scope = 'col';
+    th1.textContent = '#';
+
+    const th2 = document.createElement('th');
+    th2.scope = 'col';
+    th2.textContent = 'Nombre';
+
+    const th3 = document.createElement('th');
+    th3.scope = 'col';
+    th3.textContent = 'Eliminar';
+
+    theadRow.appendChild(th1);
+    theadRow.appendChild(th2);
+    theadRow.appendChild(th3);
+
+    thead.appendChild(theadRow);
+
+    const tbody = document.createElement('tbody');
+    carroDeCompras.forEach((producto, index) => {
+        const tr = document.createElement('tr');
+
+        const td1 = document.createElement('th');
+        td1.scope = 'row';
+        td1.textContent = index + 1;
+
+        const td2 = document.createElement('td');
+        td2.textContent = producto.nombre;
+
+        const td3 = document.createElement('td');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'productoEliminar';
+        checkbox.value = index + 1;
+
+        td3.appendChild(checkbox);
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    modalBody.appendChild(selectLabel);
+    modalBody.appendChild(table);
+
+    const modalFooter = document.createElement('div');
+    modalFooter.className = 'modal-footer';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.className = 'btn btn-secondary';
+    cancelButton.setAttribute('data-dismiss', 'modal');
+    cancelButton.textContent = 'Cancelar';
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn btn-danger';
+    deleteButton.textContent = 'Eliminar';
+
+    modalFooter.appendChild(cancelButton);
+    modalFooter.appendChild(deleteButton);
+
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalContent.appendChild(modalFooter);
+
+    modalDialog.appendChild(modalContent);
+    modal.appendChild(modalDialog);
+
+    document.body.appendChild(modal);
+
+    $('#eliminarProductoModal').modal('show');
+
+    deleteButton.addEventListener('click', function () {
+        const checkboxes = document.querySelectorAll('input[name="productoEliminar"]:checked');
+
+        if (checkboxes.length > 0) {
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.value) - 1;
                 eliminarProducto(index);
-            } else {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Por favor, ingresa una opción válida',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Por favor, seleccione al menos un producto',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
-    }
 
-    if (!salir) {  
-        mostrarCarrito();
-    }
+        $('#eliminarProductoModal').modal('hide');
+    });
 }
-
-
 
 
 function agregarBotonAlCarrito() {
@@ -245,35 +358,62 @@ function actualizarInformacionEnDOM() {
 }
 
 
-function añadirAlCarrito(productoIndex) {
-    const cantidad = parseInt(prompt("¿Cuántos productos desea adquirir?"));
-
-    if (cantidad > 0 && cantidad <= productosDisponibles[productoIndex].stock) {
-        for (let contador = 0; contador < cantidad; contador++) {
-            carroDeCompras.push(productosDisponibles[productoIndex]);
-            productosDisponibles[productoIndex].stock--;
+function abrirSweetAlertCantidad(callback) {
+    Swal.fire({
+        title: 'Ingrese la cantidad',
+        input: 'number',
+        inputAttributes: {
+            min: 1,
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Añadir al carrito',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: (cantidad) => {
+            cantidad = parseInt(cantidad);
+            return new Promise((resolve, reject) => {
+                if (!isNaN(cantidad) && cantidad > 0) {
+                    resolve(cantidad);
+                } else {
+                    reject('Por favor, ingrese una cantidad válida');
+                }
+            });
+        },
+    }).then((result) => {
+        if (!result.dismiss) {
+            callback(result.value);
         }
-        Toastify({
-            text: "¡Producto añadido con éxito!",
-            duration: 3000,
-            destination: "https://github.com/apvarun/toastify-js",
-            newWindow: true,
-            close: true,
-            gravity: "top", 
-            position: "right",
-            stopOnFocus: true, 
-            style: {
-                background: "linear-gradient(to right, #30c622, #2e8a34",
-            },
-            onClick: function () { } 
-        }).showToast();
+    });
+}
 
-        actualizarInformacionEnDOM();
-        guardarCarritoEnLocalStorage();
+function añadirAlCarrito(productoIndex) {
+    abrirSweetAlertCantidad(function (cantidad) {
+        if (cantidad <= productosDisponibles[productoIndex].stock) {
+            for (let contador = 0; contador < cantidad; contador++) {
+                carroDeCompras.push(productosDisponibles[productoIndex]);
+                productosDisponibles[productoIndex].stock--;
+            }
+            Toastify({
+                text: "¡Producto añadido con éxito!",
+                duration: 3000,
+                destination: "https://github.com/apvarun/toastify-js",
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #30c622, #2e8a34",
+                },
+                onClick: function () { }
+            }).showToast();
 
-    } else {
-        alert("No tenemos esa cantidad de stock en esa pieza.");
-    }
+            actualizarInformacionEnDOM();
+            guardarCarritoEnLocalStorage();
+        } else {
+            alert("No tenemos esa cantidad de stock en esa pieza.");
+        }
+    });
 }
 
 
