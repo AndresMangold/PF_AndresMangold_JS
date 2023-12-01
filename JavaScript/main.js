@@ -10,6 +10,21 @@
 
 //FUNCIONES:
 
+async function cargarProductosDesdeAPI() {
+    try {
+        const response = await fetch('https://my-json-server.typicode.com/AndresMangold/DB_AndresMangold_JS/articles');
+        if (!response.ok) {
+            throw new Error('Error al cargar los productos desde la API');
+        }
+
+        const productosDesdeAPI = await response.json();
+        return productosDesdeAPI.map(producto => new Producto(producto.numeroPieza, producto.nombre, producto.precio, producto.madera, producto.stock));
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
 function productoFinalIva(precioTotal) {
     return (precioTotal * 21) / 100;
 
@@ -421,6 +436,11 @@ function cargarCarritoDesdeLocalStorage() {
     const carritoGuardado = localStorage.getItem('carroDeCompras');
     if (carritoGuardado) {
         carroDeCompras = JSON.parse(carritoGuardado);
+
+        for (const productoCarrito of carroDeCompras) {
+            const index = productoCarrito.numeroPieza - 1;
+            productosDisponibles[index].stock--;
+        }
     }
 }
 
@@ -453,30 +473,34 @@ class Producto { //Función constructora
     }
 }
 
-const productosDisponibles = [
+// const productosDisponibles = [
 
-    new Producto(1, "Guerrero Vikingo", 25000, "Cedro", 1),
-    new Producto(2, "Earl Vikingo", 10000, "Cedro", 1),
-    new Producto(3, "Earl Vikingo II", 10000, "Cedro", 1),
-    new Producto(4, "Hechicero", 12000, "Cedro", 2),
-    new Producto(5, "Sabio", 8000, "Cedro", 1),
-    new Producto(6, "Guardia", 10000, "Cedro", 1),
-    new Producto(7, "Rey", 10000, "Fresno", 1),
-    new Producto(8, "Reina", 10000, "Fresno", 1),
-    new Producto(9, "Escudera", 12000, "Cedro", 1),
-    new Producto(10, "Caballero", 18000, "Fresno", 1),
-    new Producto(11, "Caballero II", 18000, "Fresno", 1),
-    new Producto(12, "Hechicero II", 12000, "Fresno", 1),
+//     new Producto(1, "Guerrero Vikingo", 25000, "Cedro", 1),
+//     new Producto(2, "Earl Vikingo", 10000, "Cedro", 1),
+//     new Producto(3, "Earl Vikingo II", 10000, "Cedro", 1),
+//     new Producto(4, "Hechicero", 12000, "Cedro", 2),
+//     new Producto(5, "Sabio", 8000, "Cedro", 1),
+//     new Producto(6, "Guardia", 10000, "Cedro", 1),
+//     new Producto(7, "Rey", 10000, "Fresno", 1),
+//     new Producto(8, "Reina", 10000, "Fresno", 1),
+//     new Producto(9, "Escudera", 12000, "Cedro", 1),
+//     new Producto(10, "Caballero", 18000, "Fresno", 1),
+//     new Producto(11, "Caballero II", 18000, "Fresno", 1),
+//     new Producto(12, "Hechicero II", 12000, "Fresno", 1),
 
-];
+// ];
 
+let productosDisponibles = [];
 
-function iniciarPrograma() {
+async function iniciarPrograma() {
+    productosDisponibles = await cargarProductosDesdeAPI();
     cargarCarritoDesdeLocalStorage();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+
+document.addEventListener('DOMContentLoaded', async function () {
+    await iniciarPrograma();
     actualizarInformacionEnDOM();
     agregarBotonAlCarrito();
-    iniciarPrograma();
+    
 });
