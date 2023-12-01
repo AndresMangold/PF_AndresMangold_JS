@@ -473,23 +473,6 @@ class Producto { //Función constructora
     }
 }
 
-// const productosDisponibles = [
-
-//     new Producto(1, "Guerrero Vikingo", 25000, "Cedro", 1),
-//     new Producto(2, "Earl Vikingo", 10000, "Cedro", 1),
-//     new Producto(3, "Earl Vikingo II", 10000, "Cedro", 1),
-//     new Producto(4, "Hechicero", 12000, "Cedro", 2),
-//     new Producto(5, "Sabio", 8000, "Cedro", 1),
-//     new Producto(6, "Guardia", 10000, "Cedro", 1),
-//     new Producto(7, "Rey", 10000, "Fresno", 1),
-//     new Producto(8, "Reina", 10000, "Fresno", 1),
-//     new Producto(9, "Escudera", 12000, "Cedro", 1),
-//     new Producto(10, "Caballero", 18000, "Fresno", 1),
-//     new Producto(11, "Caballero II", 18000, "Fresno", 1),
-//     new Producto(12, "Hechicero II", 12000, "Fresno", 1),
-
-// ];
-
 let productosDisponibles = [];
 
 async function iniciarPrograma() {
