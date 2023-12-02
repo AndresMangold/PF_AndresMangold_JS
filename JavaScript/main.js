@@ -1,10 +1,10 @@
-//Simulador de Carrito de compras.
+//Simulador de Carrito de compras - Andrés Mangold.-
 
-
-
-
-
-
+//Este programa simula el funcionamiento de un carrito de compras de un sitio especializado en venta de esculturas de madera.
+//En el mismo, aparecen todos los elementos requeridos según consigna: estructura de datos basada en arrays y objetos, y métodos de array,
+//utilización de funciones, condicionales e iteradores, sintaxis avanzada, generación y manipulación del DOM, utilización 
+//de librerías (sweetalert y toatify) para eventos, implementación de funciones asincrónicas y el método fetch para consumir 
+//una API externa. 
 
 
 
@@ -35,8 +35,6 @@ function productosEnCarrito(arreglo) {
     return mostrarCarrito.join("\n");
 }
 
-
-
 function iterarArrayMuestraProducto(accion) {
     let concatNombreYPrecio = "";
     for (elemento of productosDisponibles) {
@@ -44,7 +42,6 @@ function iterarArrayMuestraProducto(accion) {
     }
     return concatNombreYPrecio;
 }
-
 
 function mostrarCarrito() {
     if (carroDeCompras.length === 0) {
@@ -110,7 +107,6 @@ function mostrarCarrito() {
     }
 }
 
-
 function mostrarEliminarProducto() {
     return new Promise((resolve, reject) => {
         const cantidadInput = document.createElement('input');
@@ -153,8 +149,6 @@ function mostrarEliminarProducto() {
         });
     });
 }
-
-
 
 function quitarArticuloCarrito() {
     function eliminarProducto(index) {
@@ -319,7 +313,6 @@ function quitarArticuloCarrito() {
     });
 }
 
-
 function agregarBotonAlCarrito() {
     productosDisponibles.forEach((producto, index) => {
         const id = `producto-${index + 1}`;
@@ -342,7 +335,6 @@ function agregarBotonAlCarrito() {
         }
     });
 }
-
 
 function actualizarInformacionEnDOM() {
     productosDisponibles.forEach(producto => {
@@ -371,7 +363,6 @@ function actualizarInformacionEnDOM() {
         }
     });
 }
-
 
 function abrirSweetAlertCantidad(callback) {
     Swal.fire({
@@ -430,7 +421,6 @@ function añadirAlCarrito(productoIndex) {
         }
     });
 }
-
 
 function cargarCarritoDesdeLocalStorage() {
     const carritoGuardado = localStorage.getItem('carroDeCompras');
